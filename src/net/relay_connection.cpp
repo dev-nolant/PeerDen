@@ -223,10 +223,6 @@ void RelayConnection::Pump(uint64_t now_ms) {
 
         size_t payload_len = static_cast<size_t>(n) - IP_HEADER_LEN;
         recv_count_++;
-        if (recv_count_ <= 5 || recv_count_ % 100 == 0) {
-            LOG_INFO("Relay: recv %zu bytes from %s (pkt #%llu)",
-                     payload_len, src_ip.c_str(), static_cast<unsigned long long>(recv_count_));
-        }
 
         auto key_it = peer_keys_.find(src_ip);
         if (key_it == peer_keys_.end() || key_it->second.size() != 32) continue;
@@ -270,10 +266,6 @@ bool RelayConnection::Send(const std::string& dst_tun_ip, const uint8_t* data, s
     std::memcpy(pkt + IP_HEADER_LEN, sealed.data(), sealed.size());
 
     send_count_++;
-    if (send_count_ <= 5 || send_count_ % 100 == 0) {
-        LOG_INFO("Relay: send %zu bytes to %s (pkt #%llu)",
-                 len, dst_tun_ip.c_str(), static_cast<unsigned long long>(send_count_));
-    }
 
 #ifdef _WIN32
     int ret = send(static_cast<SOCKET>(fd_), reinterpret_cast<const char*>(pkt),
