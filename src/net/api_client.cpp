@@ -11,6 +11,37 @@ namespace net {
 
 namespace {
 
+static std::string JsonUnescape(const std::string& s) {
+    std::string out;
+    out.reserve(s.size());
+    for (size_t i = 0; i < s.size(); ++i) {
+        if (s[i] == '\\' && i + 1 < s.size()) {
+            if (s[i + 1] == 'u' && i + 5 < s.size()) {
+                unsigned int cp = 0;
+                for (int j = 0; j < 4; ++j) {
+                    char c = s[i + 2 + j];
+                    cp *= 16;
+                    if (c >= '0' && c <= '9') cp += c - '0';
+                    else if (c >= 'a' && c <= 'f') cp += c - 'a' + 10;
+                    else if (c >= 'A' && c <= 'F') cp += c - 'A' + 10;
+                }
+                if (cp < 0x80) out += static_cast<char>(cp);
+                else if (cp < 0x800) { out += static_cast<char>(0xC0 | (cp >> 6)); out += static_cast<char>(0x80 | (cp & 0x3F)); }
+                else if (cp < 0x10000) { out += static_cast<char>(0xE0 | (cp >> 12)); out += static_cast<char>(0x80 | ((cp >> 6) & 0x3F)); out += static_cast<char>(0x80 | (cp & 0x3F)); }
+                i += 5;
+            } else if (s[i + 1] == '"') { out += '"'; i++; }
+            else if (s[i + 1] == '\\') { out += '\\'; i++; }
+            else if (s[i + 1] == 'n') { out += '\n'; i++; }
+            else if (s[i + 1] == 'r') { out += '\r'; i++; }
+            else if (s[i + 1] == 't') { out += '\t'; i++; }
+            else out += s[i + 1], i++;
+        } else {
+            out += s[i];
+        }
+    }
+    return out;
+}
+
 struct JsonVal {
     std::string raw;
     std::string GetString(const std::string& key) const {
@@ -26,7 +57,7 @@ struct JsonVal {
             pos++;
             auto end = raw.find('"', pos);
             if (end == std::string::npos) return "";
-            return raw.substr(pos, end - pos);
+            return JsonUnescape(raw.substr(pos, end - pos));
         }
         auto end = raw.find_first_of(",}\n", pos);
         return raw.substr(pos, end - pos);

@@ -1,5 +1,8 @@
 #include "updater.h"
 #include "core/version.h"
+#ifndef CPPHTTPLIB_OPENSSL_SUPPORT
+#define CPPHTTPLIB_OPENSSL_SUPPORT
+#endif
 #include <httplib.h>
 #include <cstdio>
 #include <cstring>
@@ -221,19 +224,23 @@ void DownloadThread() {
     std::string local = "/tmp/PeerDen-Setup-Update.exe";
 #endif
 
+    httplib::Headers dl_hdrs = {
+        {"User-Agent", "PeerDen-Updater/1.0"},
+        {"Accept", "application/octet-stream"}
+    };
     httplib::Result res;
     if (use_ssl) {
         httplib::SSLClient scli(host, port);
         scli.set_connection_timeout(10);
         scli.set_read_timeout(120);
         scli.set_follow_location(true);
-        res = scli.Get(path);
+        res = scli.Get(path, dl_hdrs);
     } else {
         httplib::Client cli(host.c_str(), port);
         cli.set_connection_timeout(10);
         cli.set_read_timeout(120);
         cli.set_follow_location(true);
-        res = cli.Get(path);
+        res = cli.Get(path, dl_hdrs);
     }
     if (!res || res->status != 200) {
         g_status = UpdateStatus::Error;

@@ -144,10 +144,7 @@ void ProcessTunnelPackets(TunAdapter* tun, Tunnel* tunnel) {
         ssize_t n = tunnel->Receive(buf, sizeof(buf));
         if (n <= 0) break;
 
-        ssize_t written = tun->Write(buf, static_cast<size_t>(n));
-        if (written > 0) {
-            LOG_DEBUG("Tunnel receive %zd bytes -> TUN", written);
-        }
+        tun->Write(buf, static_cast<size_t>(n));
     }
 }
 
@@ -223,10 +220,7 @@ void ProcessTunnelPackets(TunAdapter* tun, PeerTunnelManager* mgr, const std::st
             std::string dst_ip = DstIPToString(buf, total_len);
             if (dst_ip != my_ip && !IsKnownPeerIP(dst_ip, peer_ips)) continue;
 
-            ssize_t written = tun->Write(buf, total_len);
-            if (written > 0) {
-                LOG_DEBUG("Tunnel receive %zd bytes -> TUN", written);
-            }
+            tun->Write(buf, total_len);
         }
     }
 }
