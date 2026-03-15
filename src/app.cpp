@@ -2,6 +2,9 @@
 #include "core/config.h"
 #include "core/version.h"
 #include "imgui.h"
+#if defined(_WIN32) && defined(CPPHTTPLIB_OPENSSL_SUPPORT)
+#include "updater.h"
+#endif
 #include "texture_cache.h"
 #include "theme.h"
 #include "tabs/home_tab.h"
@@ -51,6 +54,10 @@ App::App() {
     peer_tunnel_manager_ = std::make_unique<net::PeerTunnelManager>();
     api_client_ = std::make_unique<net::ApiClient>(Config::Instance().GetApiServer());
     api_client_->PrefetchGenresAsync();
+
+#if defined(_WIN32) && defined(CPPHTTPLIB_OPENSSL_SUPPORT)
+    UpdaterCheckAsync();
+#endif
 
     const std::string& saved_token = Config::Instance().GetAuthToken();
     if (!saved_token.empty()) {
@@ -522,6 +529,60 @@ void App::Render() {
     ImGui::PopStyleColor();
     ImGui::EndChild();
     ImGui::PopStyleColor();
+
+#if defined(_WIN32) && defined(CPPHTTPLIB_OPENSSL_SUPPORT)
+    {
+        UpdateStatus ustatus = UpdaterGetStatus();
+        static bool update_prompt_dismissed = false;
+        if (ustatus == UpdateStatus::UpdateAvailable && !update_prompt_dismissed) {
+            ImGui::OpenPopup("Update Available");
+        }
+        if (ustatus == UpdateStatus::DownloadComplete) {
+            ImGui::OpenPopup("Update Ready");
+        }
+        if (ImGui::BeginPopupModal("Update Available", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
+            UpdateInfo info = UpdaterGetInfo();
+            ImGui::Text("A new version of PeerDen is available.");
+            ImGui::TextColored(ImVec4(0.4f, 0.9f, 0.5f, 1.0f), "v%s", info.version.c_str());
+            ImGui::Spacing();
+            if (ImGui::Button("Download", ImVec2(120.0f * s, 0))) {
+                UpdaterDownloadAsync();
+                ImGui::CloseCurrentPopup();
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Later", ImVec2(80.0f * s, 0))) {
+                update_prompt_dismissed = true;
+                ImGui::CloseCurrentPopup();
+            }
+            ImGui::EndPopup();
+        }
+        if (ImGui::BeginPopupModal("Update Ready", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
+            ImGui::TextColored(ImVec4(0.4f, 0.9f, 0.5f, 1.0f), "Update ready to install!");
+            ImGui::Spacing();
+            if (ImGui::Button("Install and restart", ImVec2(160.0f * s, 0))) {
+                UpdaterInstallAndExit();
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Later", ImVec2(80.0f * s, 0))) {
+                ImGui::CloseCurrentPopup();
+            }
+            ImGui::EndPopup();
+        }
+        if (ustatus == UpdateStatus::Downloading && !ImGui::IsPopupOpen("Downloading")) {
+            ImGui::OpenPopup("Downloading");
+        }
+        if (((ustatus == UpdateStatus::Downloading) || ImGui::IsPopupOpen("Downloading")) &&
+            ImGui::BeginPopupModal("Downloading", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
+            if (ustatus != UpdateStatus::Downloading) {
+                ImGui::CloseCurrentPopup();
+            } else {
+                ImGui::Text("Downloading update...");
+                ImGui::ProgressBar(UpdaterGetProgress(), ImVec2(200.0f * s, 0));
+            }
+            ImGui::EndPopup();
+        }
+    }
+#endif
 
     ImGui::End();
 }
