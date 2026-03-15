@@ -1,5 +1,6 @@
 #include "app.h"
 #include "core/config.h"
+#include "core/version.h"
 #include "imgui.h"
 #include "texture_cache.h"
 #include "theme.h"
@@ -454,7 +455,7 @@ void App::Render() {
         ImGui::Spacing();
         ImGui::Separator();
         ImGui::Spacing();
-        ImGui::TextColored(ImVec4(0.45f, 0.45f, 0.5f, 1.0f), "PeerDen v1.1.0");
+        ImGui::TextColored(ImVec4(0.45f, 0.45f, 0.5f, 1.0f), "PeerDen v%s", PEERDDEN_VERSION);
 
         ImGui::PopStyleVar(2);
         ImGui::EndPopup();

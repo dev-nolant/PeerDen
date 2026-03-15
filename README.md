@@ -35,7 +35,7 @@ cmake .. -G "Visual Studio 17 2022" -A x64 -DOPENSSL_ROOT_DIR="C:\Program Files\
 cmake --build . --config Release
 ```
 
-Output: `build\Release\peerdden.exe` (with `wintun.dll` copied alongside)
+Output: `build\Release\peerdden.exe` (with `wintun.dll` and OpenSSL DLLs copied alongside). The installer bundles these—end users don't need to install OpenSSL.
 
 ### macOS
 

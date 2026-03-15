@@ -1,5 +1,6 @@
 #include "home_tab.h"
 #include "core/config.h"
+#include "core/version.h"
 #include "theme.h"
 #include "net/api_client.h"
 #include "net/coord_client.h"
@@ -157,7 +158,7 @@ void RenderHomeTab(net::TunAdapter* tun, net::CoordClient* coord, net::PeerTunne
     ImGui::BeginChild("##About", ImVec2(half_w, 130.0f * s), true, ImGuiWindowFlags_None);
     ImGui::TextColored(ImVec4(0.85f, 0.35f, 0.35f, 1.0f), "About");
     ImGui::Spacing();
-    ImGui::TextColored(ImVec4(0.8f, 0.8f, 0.82f, 1.0f), "PeerDen v1.1.0");
+    ImGui::TextColored(ImVec4(0.8f, 0.8f, 0.82f, 1.0f), "PeerDen v%s", PEERDDEN_VERSION);
     ImGui::Spacing();
     ImGui::TextWrapped("P2P virtual LAN application for low-latency multiplayer gaming. "
                        "Spiritual successor to the original Tunngle.");

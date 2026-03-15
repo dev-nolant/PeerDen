@@ -1,4 +1,5 @@
 #include "logger.h"
+#include "version.h"
 #include <ctime>
 #include <cstdio>
 #include <cstring>
@@ -93,11 +94,11 @@ void Logger::Init(const std::string& log_dir) {
              tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday,
              tm->tm_hour, tm->tm_min, tm->tm_sec);
 #ifdef _WIN32
-    fprintf(log_file_, "=== PeerDen v1.1.0 [Windows] %s ===\n", time_buf);
+    fprintf(log_file_, "=== PeerDen v%s [Windows] %s ===\n", PEERDDEN_VERSION, time_buf);
 #elif defined(__APPLE__)
-    fprintf(log_file_, "=== PeerDen v1.1.0 [macOS] %s ===\n", time_buf);
+    fprintf(log_file_, "=== PeerDen v%s [macOS] %s ===\n", PEERDDEN_VERSION, time_buf);
 #else
-    fprintf(log_file_, "=== PeerDen v1.1.0 [Linux] %s ===\n", time_buf);
+    fprintf(log_file_, "=== PeerDen v%s [Linux] %s ===\n", PEERDDEN_VERSION, time_buf);
 #endif
     fflush(log_file_);
 }

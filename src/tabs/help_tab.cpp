@@ -1,5 +1,7 @@
 #include "help_tab.h"
 #include "theme.h"
+#include "updater.h"
+#include "core/version.h"
 #include "imgui.h"
 
 #include <cstdlib>
@@ -164,6 +166,38 @@ void RenderHelpTab() {
     }
 
     SectionHeader("Resources");
+#if defined(_WIN32) && defined(CPPHTTPLIB_OPENSSL_SUPPORT)
+    ImGui::Text("Version %s", PEERDDEN_VERSION);
+    ImGui::Spacing();
+    UpdateStatus ustatus = UpdaterGetStatus();
+    if (ustatus == UpdateStatus::Idle || ustatus == UpdateStatus::UpToDate || ustatus == UpdateStatus::Error) {
+        if (ImGui::Button("Check for updates", ImVec2(140.0f * s, 0))) {
+            UpdaterCheckAsync();
+        }
+    } else if (ustatus == UpdateStatus::Checking) {
+        ImGui::TextColored(ImVec4(0.5f, 0.5f, 0.55f, 1.0f), "Checking...");
+    } else if (ustatus == UpdateStatus::UpdateAvailable) {
+        UpdateInfo info = UpdaterGetInfo();
+        ImGui::TextColored(ImVec4(0.4f, 0.9f, 0.5f, 1.0f), "Update available: v%s", info.version.c_str());
+        if (ImGui::Button("Download", ImVec2(100.0f * s, 0))) {
+            UpdaterDownloadAsync();
+        }
+    } else if (ustatus == UpdateStatus::Downloading) {
+        ImGui::TextColored(ImVec4(0.5f, 0.5f, 0.55f, 1.0f), "Downloading...");
+    } else if (ustatus == UpdateStatus::DownloadComplete) {
+        ImGui::TextColored(ImVec4(0.4f, 0.9f, 0.5f, 1.0f), "Update ready!");
+        if (ImGui::Button("Install and restart", ImVec2(150.0f * s, 0))) {
+            UpdaterInstallAndExit();
+        }
+    }
+    if (ustatus == UpdateStatus::Error) {
+        ImGui::TextColored(ImVec4(0.9f, 0.4f, 0.35f, 1.0f), "%s", UpdaterGetError().c_str());
+    }
+    ImGui::Spacing();
+#elif defined(_WIN32)
+    ImGui::Text("Version %s", PEERDDEN_VERSION);
+    ImGui::Spacing();
+#endif
     ImGui::TextWrapped("Need more help? Join the community or get in touch:");
     ImGui::Spacing();
     Link("Forum", "https://forums.peerden.io");
