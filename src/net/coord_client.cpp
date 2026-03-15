@@ -474,6 +474,10 @@ void CoordClient::Leave() {
     const char* msg = "{\"cmd\":\"leave\"}\n";
     RawSend(msg, strlen(msg));
     in_room_ = false;
+    peers_.clear();
+    assigned_tun_ip_.clear();
+    relay_addr_.clear();
+    relay_token_.clear();
     chat_messages_.clear();
 }
 

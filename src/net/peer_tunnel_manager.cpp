@@ -16,6 +16,9 @@ void PeerTunnelManager::SetRelayAddr(const std::string& host, uint16_t port,
                                       const std::string& my_tun_ip,
                                       const std::string& relay_token) {
     bool changed = (relay_host_ != host || relay_port_ != port || my_tun_ip_ != my_tun_ip || relay_token_ != relay_token);
+    if (relay_ && relay_token_ != relay_token) {
+        relay_.reset();
+    }
     relay_host_ = host;
     relay_port_ = port;
     my_tun_ip_ = my_tun_ip;

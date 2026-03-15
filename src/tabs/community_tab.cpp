@@ -262,9 +262,7 @@ void RenderNetworksSidebar(net::CoordClient* coord, net::PeerTunnelManager* peer
         ImGui::Spacing();
         ImGui::Spacing();
         if (ImGui::Button("Leave Room", ImVec2(-1, 26.0f * s))) {
-            for (const auto& p : coord->GetPeers()) {
-                peer_mgr->RemovePeer(p.tun_ip);
-            }
+            peer_mgr->ClearAll();
             coord->Leave();
             coord->Disconnect();
             room_join_time = 0;

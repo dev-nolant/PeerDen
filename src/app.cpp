@@ -208,9 +208,7 @@ void App::Render() {
             }
             if (ImGui::MenuItem("Leave lobby", nullptr, false, in_lobby)) {
                 if (GetCoordClient() && GetPeerTunnelManager()) {
-                    for (const auto& p : GetCoordClient()->GetPeers()) {
-                        GetPeerTunnelManager()->RemovePeer(p.tun_ip);
-                    }
+                    GetPeerTunnelManager()->ClearAll();
                     GetCoordClient()->Leave();
                     GetCoordClient()->Disconnect();
                 }
