@@ -1,0 +1,52 @@
+PeerDen Client – Build Instructions
+====================================
+
+Prerequisites
+-------------
+- CMake 3.20+
+- C++17 compiler (Visual Studio 2022 on Windows, GCC/Clang on macOS/Linux)
+- Python 3.x (for icon conversion)
+- OpenSSL 3.x (optional, for TLS coord server)
+
+
+Windows
+-------
+cd open-source
+mkdir build
+cd build
+cmake .. -G "Visual Studio 17 2022" -A x64 -DOPENSSL_ROOT_DIR="C:\Program Files\OpenSSL-Win64"
+cmake --build . --config Release
+
+Output: build\Release\peerdden.exe
+
+Note: wintun.dll must be in the same directory as peerdden.exe (copy from project root or wintun.net).
+
+
+macOS
+-----
+cd open-source
+mkdir build
+cd build
+cmake .. -DCMAKE_BUILD_TYPE=Release
+cmake --build .
+
+Output: build/peerdden
+
+
+Linux
+-----
+cd open-source
+mkdir build
+cd build
+cmake .. -DCMAKE_BUILD_TYPE=Release
+cmake --build .
+
+Output: build/peerdden
+
+
+Installer (Windows)
+-------------------
+1. Build the client (see above)
+2. Run: .\installer\build-installer.ps1
+   Or: "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" installer\peerdden.iss
+3. Output: installer\output\PeerDen-Setup-1.0.0.exe
